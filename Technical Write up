@@ -1,84 +1,102 @@
-Technical Write-up: Agentic RAG for Marketing Research
-This project implements a LangGraph-based agentic RAG system designed to assist with marketing ad copy and research. The solution is built with a FastAPI backend to expose its functionality via a web API, ensuring it's a deployable and scalable service. The core architecture leverages LangGraph to create a stateful, multi-step reasoning workflow.
+# 🚀 Agentic RAG for Marketing Ad Copy
 
-Architecture and Tools
-The system's architecture is centered around LangGraph, which defines a cyclical graph of nodes representing different steps in the agent's reasoning process. The nodes are:
+This project implements a **LangGraph-based Agentic RAG system** designed to assist with **marketing ad copy and research**.  
+The solution is built with a **FastAPI backend**, making it deployable and scalable via a web API.  
 
-agent: The primary reasoning node. It uses a tool-calling LLM to decide the next step—either to use a tool or provide a direct response. For initial user queries, it can trigger the retrieve node via the retriever_tool. For follow-up conversational turns, it provides a concise, direct answer.
+At its core, the system leverages **LangGraph** to define a **stateful, multi-step reasoning workflow** for improved retrieval and generation.
 
-retrieve: A ToolNode that executes the retriever_tool, fetching relevant documents from a FAISS vector store.
+---
 
-grade_documents: A conditional node that acts as a router. It uses a dedicated LLM to evaluate the relevance of the retrieved documents to the user's question, directing the flow to either generate or rewrite.
+## 🏗️ Architecture & Tools
 
-generate: Creates a final answer by synthesizing information from the retrieved documents and the user's query, adhering to a specific marketing-oriented prompt.
+The architecture centers on **LangGraph**, which models the reasoning process as a cyclical graph of nodes:
 
-rewrite: An alternative path for when no relevant documents are found. It uses the LLM to rewrite and enhance the original ad copy, suggesting different tones and platform optimizations.
+- **agent** → Primary reasoning node (uses a tool-calling LLM).  
+  - Decides whether to call a tool (retriever) or respond directly.  
+- **retrieve** → Executes `retriever_tool` to fetch relevant docs from FAISS vector store.  
+- **grade_documents** → Uses a grading LLM to evaluate the relevance of retrieved documents.  
+- **generate** → Synthesizes a final answer from relevant docs and the query.  
+- **rewrite** → If no relevant docs, rewrites/enhances ad copy for different tones/platforms.  
 
-The project uses LangChain components like WebBaseLoader, PyPDFLoader, FAISS, and RecursiveCharacterTextSplitter for data loading, chunking, and vector storage. The LLMs are provided by ChatGroq, with specific models like Gemma2-9b-It and llama-3.3-70b-versatile used for different tasks, demonstrating model specialization within the agent's workflow. The entire system is served via FastAPI, with endpoints for chatting (/chat) and for uploading and indexing new PDF documents (/upload_pdf).
+### 🔧 Tech Stack
 
+- **LangChain components**:  
+  - `WebBaseLoader`, `PyPDFLoader`, `RecursiveCharacterTextSplitter`  
+  - `FAISS` (vector store)  
+- **LLMs**:  
+  - `ChatGroq` (Gemma2-9b-It, Llama-3.3-70b-versatile for specialized tasks)  
+- **FastAPI**: Web API with endpoints for:  
+  - `/chat` → Chat with the agent  
+  - `/upload-pdfs` → Upload and index multiple PDFs  
 
+---
 
-Use of Agentic RAG
-This solution is a prime example of Agentic RAG. It goes beyond simple "retrieve and generate" by incorporating decision-making into the retrieval process itself. The agent doesn't just retrieve documents; it first attempts to decide if a tool is needed, then uses a separate, specialized "grader" LLM to evaluate the relevance of the retrieved information. This multi-step, dynamic flow is more robust than a static RAG pipeline.
+## 🤖 Why Agentic RAG?
 
-This approach helps with complex, multi-step reasoning by:
+Unlike static RAG pipelines, this system **adds decision-making** into retrieval:  
 
-Routing: The grade_documents node acts as a router, ensuring the system either retrieves information from its knowledge base or, if the query is unrelated, creatively rewrites the ad copy. This prevents the LLM from trying to answer with irrelevant context, thereby improving response quality and reducing hallucinations.
+- **Routing** → `grade_documents` ensures irrelevant context is discarded.  
+- **Precision & Recall** → Uses tool-based retrieval + LLM grading for relevance.  
+- **Dynamic Paths** → Can generate answers OR rewrite copy depending on query.  
 
-Improving Precision and Recall: By pre-loading and allowing the addition of new documents (via PDF uploads), the system's knowledge base can grow. The agent's ability to precisely grade the relevance of retrieved chunks improves precision, as it only uses documents it deems useful for generation. The tool-use component ensures the system has a high recall of its available knowledge, as it actively searches for information rather than relying on a static context window.
+This makes responses **more robust, relevant, and hallucination-resistant**.
 
+---
 
+## 📊 Potential Knowledge Graph Extension
 
-Knowledge Graph Integration
-While the current implementation uses a traditional vector store (FAISS), it could be significantly enhanced by integrating a Knowledge Graph (KG).
+Currently, knowledge is stored in **FAISS**.  
+Future upgrades could integrate a **Knowledge Graph (KG)** for structured reasoning:  
 
-A KG could represent entities and their relationships, such as:
+- **Entities**: Marketing concepts, ad platforms, creative types, user intent.  
+- **Relationships**: e.g., *Instagram → is_a_platform_for → Visual Ads*.  
+- **Benefit**: Richer, more contextual responses than pure semantic search.  
 
-Entities: Marketing concepts (e.g., "SEO," "PPC," "Social Media Marketing"), Ad Platforms ("Instagram," "LinkedIn," "Twitter"), Creative Types ("Video Ad," "Carousel," "Static Image"), and User Intent ("Awareness," "Lead Generation," "Conversion").
+---
 
-Relationships: SEO is_a_topic_of Digital Marketing, Instagram is_a_platform_for Visual Ads, Video Ad drives Awareness.
+## ✅ Evaluation Strategy
 
-Example:
-If a user asks, "How can I improve my marketing on Instagram?", a KG could be used to:
+To measure effectiveness:
 
-Identify Instagram as an entity related to Social Media Marketing.
+1. **Relevance & Hallucination Rate** (manual):  
+   - Human evaluators score answers (1–5).  
+   - Track hallucination-free responses %.  
 
-Find relationships linking Instagram to Creative Types like "Reels" and "Stories" and to User Intent like "Brand Awareness."
+2. **ROUGE Score** (automated summaries):  
+   - Compare generated summaries vs. references.  
 
-The agent could then use this structured knowledge to formulate a more targeted and contextually rich response, even before or in conjunction with retrieving unstructured text from the FAISS vector store. This would allow the agent to reason about related concepts more effectively than a simple semantic search alone.
+3. **F1 Score** (automated extraction):  
+   - Test factual extraction queries.  
 
+4. **Tool-Use Accuracy** (manual/automated):  
+   - Ensure correct retriever vs. rewrite decisions.  
 
+---
 
-Evaluation Strategy
-Evaluating this agent's performance requires a multi-faceted approach.
+## 🔄 Improvement Loop
 
-Relevance & Hallucination Rate (Manual):
+- **Memory**:  
+  - Short-term via LangGraph `AgentState.messages`.  
+  - Long-term via persistent storage of Q/A pairs.  
 
-Method: A human evaluator would rate the agent's responses on a scale (e.g., 1-5) for relevance to the original query and factuality.
+- **Feedback Loop**:  
+  - User thumbs-up/down → Triggers prompt refinement.  
+  - Store “failure cases” to prevent recurrence.  
 
-Metrics: Percentage of hallucination-free responses and average relevance score. This is crucial for verifying the grade_documents node is working correctly.
+---
 
-ROUGE Score for Summaries (Automated):
+## ⚙️ Prerequisites
 
-Method: For queries that result in a summary (e.g., in the generate node), compare the generated answer against a set of human-written reference answers using ROUGE metrics (e.g., ROUGE-L).
+- **Python** 3.8+  
+- **Git**  
+- Text editor (VS Code recommended)  
 
-Metrics: ROUGE-L to measure the longest common subsequence, indicating content overlap and fluency.
+---
 
-F1 Score for Extraction (Automated):
+## 🛠️ Setup & Installation
 
-Method: For specific queries requiring data extraction (e.g., "What are the key stats for PPC ads?"), compare the agent's extracted information against a ground truth set of facts.
+Clone the repository:
 
-Metrics: F1 score (the harmonic mean of precision and recall) to measure the accuracy of extracted data.
-
-Tool-Use Accuracy (Automated/Manual):
-
-Method: Test cases would verify that the agent correctly calls the retriever_tool when appropriate and decides to rewrite when a query is out of scope.
-
-Metrics: Percentage of correct tool-use decisions.
-
-Pattern Recognition and Improvement Loop
-This agent can be adapted to improve over time by incorporating memory and a feedback loop.
-
-Memory Modules: The current AgentState in LangGraph includes a messages list, which serves as a basic form of short-term memory. This allows the agent to maintain context within a single conversation turn. For long-term adaptation, a persistent memory module (e.g., using a database) could store successful prompt-response pairs.
-
-Feedback Loop: A human-in-the-loop or automated feedback mechanism could be implemented. For example, a user could provide a thumbs-up or thumbs-down on a response. Bad responses could trigger a prompt refinement loop, where the system automatically revises the prompt used in the generate or rewrite nodes to avoid similar mistakes. The revised prompt, along with the corrected response, would then be stored in a "knowledge base of failures" to prevent recurrence. This could also be used to fine-tune the grade_documents LLM over time.
+```bash
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
