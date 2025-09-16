@@ -10,3 +10,5 @@ langchain_text_splitters
 langchain_community
 faiss-cpu
 pillow
+bs4
+tiktoken
