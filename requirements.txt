@@ -13,3 +13,4 @@ pillow
 bs4
 tiktoken
 pypdf
+sentence-transformers
