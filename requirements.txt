@@ -12,3 +12,4 @@ faiss-cpu
 pillow
 bs4
 tiktoken
+pypdf
