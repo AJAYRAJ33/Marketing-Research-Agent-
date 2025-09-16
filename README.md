@@ -1,79 +1,93 @@
+# 📢 Marketing Research Agent
 
-Steps to Run the Project Locally
-To run this FastAPI project on your local machine, follow these steps.
+This project implements an **Agentic RAG (Retrieval-Augmented Generation)** system using **LangGraph** and **FastAPI** to assist with **marketing research and ad copy generation**. It features a multi-step, dynamic workflow that intelligently decides whether to retrieve information from its knowledge base, generate a response, or creatively rewrite ad text.
 
-1. Prerequisites
-First, make sure you have the following installed:
+---
 
-Python 3.8+: The project is built with Python.
+## ✨ Features
+- ⚡ **FastAPI Backend** → Scalable API serving the agent's functionality  
+- 🧠 **LangGraph Agent** → Stateful, multi-step agent for complex decision-making  
+- 📚 **RAG System** → FAISS vector store retrieves and answers questions from the indexed knowledge base  
+- ✅ **Dynamic Document Grader** → LLM ensures only relevant documents are used  
+- 📄 **PDF Uploads** → Expand the knowledge base with new PDF documents  
+- 💻 **Interactive UI** → Simple web interface for chatting with the agent  
 
-Git: To clone the repository from GitHub.
+---
 
-A text editor (like VS Code or Sublime Text).
+## 🚀 Getting Started
 
-2. Get the Code
-Open your terminal or command prompt and clone the repository you created on GitHub. Replace the URL with your project's URL.
+### 1. Prerequisites
+- Python **3.8+**  
+- Git  
+- A text editor (VS Code, Sublime, etc.)  
 
-Bash
-
+### 2. Clone the Repository
+```bash
 git clone https://github.com/your-username/your-repo-name.git
-Next, navigate into the project directory:
-
-Bash
-
 cd your-repo-name
-3. Set Up the Environment
-It is highly recommended to use a virtual environment to manage dependencies.
+```
 
-Create a virtual environment:
-
-Bash
-
+### 3. Set Up a Virtual Environment
+```bash
 python -m venv .venv
-Activate the virtual environment:
+```
 
-On Windows:
+Activate the environment:
 
-Bash
-
+**Windows**
+```bash
 .venv\Scripts\activate
-On macOS/Linux:
+```
 
-Bash
-
+**macOS/Linux**
+```bash
 source .venv/bin/activate
-Install dependencies: After activating the environment, install the required Python packages. You'll need to create a requirements.txt file if you haven't already.
+```
 
-Bash
-
+### 4. Install Dependencies
+```bash
 pip install fastapi uvicorn python-dotenv langchain_core langchain_groq langgraph langchain_huggingface langchain_community langchain_text_splitters pydantic
-Once these are installed, you can generate your requirements.txt file for future use:
+```
 
-Bash
-
+(Optional) Export requirements:
+```bash
 pip freeze > requirements.txt
-Now, to install dependencies in the future, you would use:
+```
 
-Bash
-
-pip install -r requirements.txt
-4. Configure API Key
+### 5. API Key Configuration
 The application requires a GROQ API key.
 
-Create a file named .env in your project's root directory.
-
-Add your API key to this file in the following format:
-
+Create a `.env` file in the project root:
+```env
 GROQ_API_KEY="your_groq_api_key_here"
+```
 
-5. Run the Application
-Finally, start the FastAPI server using uvicorn. The reload flag will automatically restart the server when you make code changes.
-
-Bash
-
+### 6. Run the Server
+From the project’s root directory:
+```bash
 uvicorn app:app --reload
-The server will now be running on your local machine. You can access the application by opening your web browser and navigating to:
+```
 
-UI: http://127.0.0.1:8000
+The server will now be running at:
 
-API Docs: http://127.0.0.1:8000/docs (for testing the API endpoints like /chat and /upload_pdf)
+🌐 UI → http://127.0.0.1:8000  
+📖 API Docs → http://127.0.0.1:8000/docs  
+
+---
+
+## 🌐 Usage
+- **Web UI** → Chat with the agent through the browser.  
+- **API Docs** → Test endpoints like `/chat` and `/upload_pdf`.  
+- **PDF Upload** → Expand the agent’s knowledge base with your own documents.  
+
+---
+
+## 🏛️ Project Architecture
+At the core of this project is a **LangGraph state machine** that powers the agent’s decision-making. The agent can:
+
+- Retrieve relevant knowledge  
+- Evaluate document relevance  
+- Generate context-aware responses  
+- Rewrite ad copy dynamically  
+
+This design enables a **more powerful and flexible RAG workflow** compared to standard pipelines.
